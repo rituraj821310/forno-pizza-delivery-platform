@@ -1,0 +1,254 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* =========================================================
+   🍕 PIZZA DELIVERY — GLOBAL DESIGN SYSTEM
+   ========================================================= */
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-flour text-char font-sans antialiased;
+    margin: 0;
+    min-width: 320px;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    @apply font-display text-char;
+    letter-spacing: -0.025em;
+  }
+
+  ::selection {
+    @apply bg-tomato text-flour;
+  }
+
+  ::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  ::-webkit-scrollbar-track {
+    @apply bg-flour;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    @apply bg-char/20 rounded-full;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-tomato;
+  }
+
+  :focus-visible {
+    outline: 2px solid theme("colors.tomato.DEFAULT");
+    outline-offset: 3px;
+  }
+
+  button,
+  a,
+  input,
+  textarea,
+  select {
+    -webkit-tap-highlight-color: transparent;
+  }
+}
+
+/* =========================================================
+   COMPONENTS
+   ========================================================= */
+
+@layer components {
+  /* ---------- Primary Button ---------- */
+
+  .btn-primary {
+    @apply inline-flex items-center justify-center gap-2
+      bg-tomato text-flour
+      font-sans font-semibold
+      px-6 py-3
+      rounded-full
+      shadow-sm
+      transition-all duration-200
+      hover:bg-tomato-dark
+      hover:-translate-y-0.5
+      hover:shadow-lg
+      active:translate-y-0
+      disabled:opacity-50
+      disabled:cursor-not-allowed
+      disabled:hover:translate-y-0
+      disabled:hover:shadow-sm;
+  }
+
+  /* ---------- Secondary Button ---------- */
+
+  .btn-secondary {
+    @apply inline-flex items-center justify-center gap-2
+      bg-transparent
+      border-2 border-char/80
+      text-char
+      font-sans font-semibold
+      px-6 py-3
+      rounded-full
+      transition-all duration-200
+      hover:bg-char
+      hover:text-flour
+      hover:-translate-y-0.5
+      hover:shadow-md
+      active:translate-y-0
+      disabled:opacity-50
+      disabled:cursor-not-allowed;
+  }
+
+  /* ---------- Ghost Button ---------- */
+
+  .btn-ghost {
+    @apply inline-flex items-center justify-center gap-2
+      text-char
+      font-sans font-semibold
+      px-4 py-2
+      rounded-full
+      transition-all duration-200
+      hover:bg-char/5
+      hover:text-tomato;
+  }
+
+  /* ---------- Input ---------- */
+
+  .input-field {
+    @apply w-full
+      border-2 border-char/10
+      bg-white/80
+      rounded-2xl
+      px-4 py-3
+      font-sans text-char
+      placeholder:text-char/40
+      transition-all duration-200
+      focus:border-tomato
+      focus:bg-white
+      focus:outline-none
+      focus:ring-4
+      focus:ring-tomato/10;
+  }
+
+  /* ---------- Card ---------- */
+
+  .card {
+    @apply bg-white
+      border border-char/10
+      rounded-3xl
+      shadow-sm
+      transition-all duration-300;
+  }
+
+  .card-hover {
+    @apply hover:-translate-y-1
+      hover:shadow-xl
+      hover:border-tomato/20;
+  }
+
+  /* ---------- Small Label ---------- */
+
+  .label-sm {
+    @apply text-sm font-semibold text-char/60;
+  }
+
+  /* ---------- Section Heading ---------- */
+
+  .section-label {
+    @apply inline-flex items-center gap-2
+      text-sm font-bold
+      uppercase tracking-[0.18em]
+      text-tomato;
+  }
+
+  .section-title {
+    @apply text-3xl md:text-4xl lg:text-5xl
+      font-bold
+      leading-tight;
+  }
+
+  .section-description {
+    @apply text-base md:text-lg
+      text-char/60
+      leading-relaxed;
+  }
+
+  /* ---------- Premium Surface ---------- */
+
+  .glass-card {
+    @apply bg-white/70
+      border border-white/60
+      backdrop-blur-xl
+      shadow-xl
+      rounded-3xl;
+  }
+
+  /* ---------- Page Container ---------- */
+
+  .page-container {
+    @apply w-full max-w-7xl
+      mx-auto
+      px-4 sm:px-6 lg:px-8;
+  }
+
+  /* ---------- Gradient Text ---------- */
+
+  .gradient-text {
+    @apply bg-gradient-to-r
+      from-tomato
+      to-tomato-dark
+      bg-clip-text
+      text-transparent;
+  }
+}
+
+/* =========================================================
+   CUSTOM UTILITIES
+   ========================================================= */
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  .animate-float {
+    animation: pizza-float 5s ease-in-out infinite;
+  }
+
+  .animate-pulse-soft {
+    animation: pulse-soft 2.5s ease-in-out infinite;
+  }
+}
+
+/* =========================================================
+   ANIMATIONS
+   ========================================================= */
+
+@keyframes pizza-float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+@keyframes pulse-soft {
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.65;
+  }
+}

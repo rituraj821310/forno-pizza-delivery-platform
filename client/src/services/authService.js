@@ -1,0 +1,26 @@
+import api from './api.js'
+
+export async function login({ email, password }) {
+  const { data } = await api.post('/auth/login', { email, password })
+  return data
+}
+
+export async function register({ name, email, password, phone }) {
+  const { data } = await api.post('/auth/register', { name, email, password, phone })
+  return data
+}
+
+export async function fetchCurrentUser() {
+  const { data } = await api.get('/auth/me')
+  return data
+}
+
+export async function logout() {
+  const { data } = await api.post('/auth/logout')
+  return data
+}
+
+export async function updateProfile(payload) {
+  const { data } = await api.put('/auth/profile', payload)
+  return data
+}
