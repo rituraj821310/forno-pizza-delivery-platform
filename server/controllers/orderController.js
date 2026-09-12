@@ -4,9 +4,6 @@ import * as orderService from '../services/orderService.js'
 import Order from '../models/Order.js'
 
 const createOrder = asyncHandler(async (req, res) => {
-  console.log('[orders] request body:', JSON.stringify(req.body, null, 2))
-  console.log('[orders] user:', req.user?._id)
-
   const {
   items,
   deliveryAddress,
