@@ -10,6 +10,7 @@ import {
 
 import { useCart } from '../../hooks/useCart.js'
 import { formatCurrency } from '../../utils/formatCurrency.js'
+import { SERVER_BASE_URL } from '../../utils/constants.js'
 import QuantityStepper from '../../components/QuantityStepper.jsx'
 import EmptyState from '../../components/EmptyState.jsx'
 
@@ -86,9 +87,7 @@ export default function Cart() {
               Continue shopping
             </Link>
 
-            <p className="label-sm text-tomato">
-              Your order
-            </p>
+            <p className="label-sm text-tomato">Your order</p>
 
             <h1 className="mt-1 font-display text-3xl font-semibold sm:text-4xl">
               Your cart
@@ -208,9 +207,7 @@ export default function Cart() {
 
                 <div className="mb-6 flex items-end justify-between gap-4">
                   <div>
-                    <p className="text-sm font-medium text-char/50">
-                      Total
-                    </p>
+                    <p className="text-sm font-medium text-char/50">Total</p>
 
                     <p className="mt-1 font-display text-3xl font-semibold text-char">
                       {formatCurrency(total)}
@@ -278,8 +275,8 @@ export default function Cart() {
                 </button>
 
                 <p className="mt-4 text-center text-xs leading-relaxed text-char/40">
-                  You'll review your delivery details and payment
-                  before placing the order.
+                  You'll review your delivery details and payment before
+                  placing the order.
                 </p>
               </div>
 
@@ -330,7 +327,13 @@ function CartItem({
         <div className="relative h-24 w-24 shrink-0 overflow-hidden rounded-2xl bg-crust-light sm:h-28 sm:w-28">
           {item.image ? (
             <img
-              src={item.image}
+              src={
+                item.image.startsWith('http')
+                  ? item.image
+                  : `${SERVER_BASE_URL}${
+                      item.image.startsWith('/') ? '' : '/'
+                    }${item.image}`
+              }
               alt={item.name}
               className={`
                 h-full
@@ -434,9 +437,7 @@ function InfoCard({ icon, title, text }) {
       </div>
 
       <div>
-        <p className="text-sm font-semibold text-char">
-          {title}
-        </p>
+        <p className="text-sm font-semibold text-char">{title}</p>
 
         <p className="mt-0.5 text-xs leading-relaxed text-char/45">
           {text}
@@ -451,9 +452,7 @@ function Row({ label, value }) {
     <div className="flex items-center justify-between gap-4 text-char/60">
       <span>{label}</span>
 
-      <span className="font-medium text-char/75">
-        {value}
-      </span>
+      <span className="font-medium text-char/75">{value}</span>
     </div>
   )
 }

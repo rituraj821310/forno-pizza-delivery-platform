@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react'
-import { FiCheck, FiMinus, FiPlus, FiX } from 'react-icons/fi'
-import { PIZZA_SIZES } from '../utils/constants.js'
+import { FiCheck, FiPlus, FiX } from 'react-icons/fi'
+import { PIZZA_SIZES, SERVER_BASE_URL } from '../utils/constants.js'
 import { formatCurrency } from '../utils/formatCurrency.js'
 import { useCart } from '../hooks/useCart.js'
 import QuantityStepper from './QuantityStepper.jsx'
@@ -14,20 +14,54 @@ const TOPPINGS = [
   { name: 'Olives', icon: '🫒' },
 ]
 
+const DRINK_SIZES = [
+  { id: 'small', label: 'Small', multiplier: 0.8 },
+  { id: 'medium', label: 'Medium', multiplier: 1 },
+  { id: 'large', label: 'Large', multiplier: 1.25 },
+]
+
+function getImageUrl(image) {
+  if (!image) return null
+
+  if (image.startsWith('http')) {
+    return image
+  }
+
+  return `${SERVER_BASE_URL}${image.startsWith('/') ? '' : '/'}${image}`
+}
+
 export default function PizzaCustomizeModal({ item, onClose }) {
   const { addItem } = useCart()
 
-  const [size, setSize] = useState('medium')
+  const isDrink = item.category === 'Drinks'
+  const isSide = item.category === 'Sides'
+  const isPizza = !isDrink && !isSide
+
+  const [size, setSize] = useState(
+    isPizza || isDrink ? 'medium' : null
+  )
   const [toppings, setToppings] = useState([])
   const [quantity, setQuantity] = useState(1)
 
-  const sizeInfo = PIZZA_SIZES.find((s) => s.id === size)
+  const sizeOptions = isPizza ? PIZZA_SIZES : DRINK_SIZES
+
+  const sizeInfo = sizeOptions.find((s) => s.id === size)
+
   const toppingPrice = 30
 
   const unitPrice = useMemo(() => {
-    const base = item.basePrice * (sizeInfo?.multiplier ?? 1)
-    return base + toppings.length * toppingPrice
-  }, [item.basePrice, sizeInfo, toppings])
+    const multiplier = sizeInfo?.multiplier ?? 1
+    const base = item.basePrice * multiplier
+
+    return isPizza
+      ? base + toppings.length * toppingPrice
+      : base
+  }, [
+    item.basePrice,
+    sizeInfo,
+    toppings.length,
+    isPizza,
+  ])
 
   function toggleTopping(topping) {
     setToppings((prev) =>
@@ -42,7 +76,7 @@ export default function PizzaCustomizeModal({ item, onClose }) {
       menuItemId: item._id || item.id,
       name: item.name,
       size,
-      toppings,
+      toppings: isPizza ? toppings : [],
       price: unitPrice,
       quantity,
       image: item.image,
@@ -50,6 +84,12 @@ export default function PizzaCustomizeModal({ item, onClose }) {
 
     onClose()
   }
+
+  const sectionTitle = isPizza
+    ? 'Customize your pizza'
+    : isDrink
+      ? 'Choose your drink'
+      : 'Choose your side'
 
   return (
     <div className="fixed inset-0 z-50 flex items-end justify-center sm:items-center">
@@ -88,7 +128,7 @@ export default function PizzaCustomizeModal({ item, onClose }) {
         <div className="relative h-44 shrink-0 overflow-hidden bg-crust-light sm:h-52">
           {item.image ? (
             <img
-              src={item.image}
+              src={getImageUrl(item.image)}
               alt={item.name}
               className="h-full w-full object-cover"
             />
@@ -129,10 +169,10 @@ export default function PizzaCustomizeModal({ item, onClose }) {
             <FiX size={19} />
           </button>
 
-          {/* Pizza name over image */}
+          {/* Item name */}
           <div className="absolute bottom-4 left-5 right-5">
             <p className="mb-1 text-xs font-semibold uppercase tracking-[0.18em] text-white/75">
-              Customize your pizza
+              {sectionTitle}
             </p>
 
             <h2 className="font-display text-2xl font-semibold text-white sm:text-3xl">
@@ -150,150 +190,162 @@ export default function PizzaCustomizeModal({ item, onClose }) {
           )}
 
           {/* Size */}
-          <section className="mb-7">
-            <div className="mb-3 flex items-end justify-between">
-              <div>
+          {!isSide && (
+            <section className="mb-7">
+              <div className="mb-3 flex items-end justify-between">
+                <div>
+                  <p className="text-xs font-bold uppercase tracking-wider text-char/45">
+                    Step 1
+                  </p>
+
+                  <h3 className="mt-1 font-display text-xl font-semibold">
+                    Choose your {isPizza ? 'pizza size' : 'drink size'}
+                  </h3>
+                </div>
+
+                {sizeInfo && (
+                  <span className="text-sm font-semibold text-tomato">
+                    {sizeInfo.label}
+                  </span>
+                )}
+              </div>
+
+              <div
+                className={
+                  isPizza
+                    ? 'grid grid-cols-2 gap-3 sm:grid-cols-4'
+                    : 'grid grid-cols-3 gap-3'
+                }
+              >
+                {sizeOptions.map((s) => {
+                  const selected = size === s.id
+
+                  return (
+                    <button
+                      type="button"
+                      key={s.id}
+                      onClick={() => setSize(s.id)}
+                      className={`
+                        relative
+                        overflow-hidden
+                        rounded-2xl
+                        border-2
+                        px-3
+                        py-3
+                        text-left
+                        transition-all
+                        duration-200
+                        ${
+                          selected
+                            ? 'border-tomato bg-tomato/10 text-tomato-dark shadow-sm'
+                            : 'border-char/10 bg-white/60 text-char/70 hover:border-char/25 hover:bg-white'
+                        }
+                      `}
+                    >
+                      {selected && (
+                        <span className="absolute right-2 top-2 flex h-5 w-5 items-center justify-center rounded-full bg-tomato text-white">
+                          <FiCheck size={11} strokeWidth={3} />
+                        </span>
+                      )}
+
+                      <span className="block text-sm font-bold">
+                        {s.label}
+                      </span>
+
+                      <span className="mt-1 block text-xs text-char/45">
+                        {s.multiplier === 1
+                          ? 'Regular price'
+                          : `${s.multiplier}× price`}
+                      </span>
+                    </button>
+                  )
+                })}
+              </div>
+            </section>
+          )}
+
+          {/* Toppings — Pizza only */}
+          {isPizza && (
+            <section className="mb-7">
+              <div className="mb-3">
                 <p className="text-xs font-bold uppercase tracking-wider text-char/45">
-                  Step 1
+                  Step 2
                 </p>
-                <h3 className="mt-1 font-display text-xl font-semibold">
-                  Choose your size
-                </h3>
+
+                <div className="mt-1 flex items-center justify-between gap-3">
+                  <h3 className="font-display text-xl font-semibold">
+                    Add extra toppings
+                  </h3>
+
+                  <span className="shrink-0 text-xs font-semibold text-char/45">
+                    +{formatCurrency(toppingPrice)} each
+                  </span>
+                </div>
               </div>
 
-              {sizeInfo && (
-                <span className="text-sm font-semibold text-tomato">
-                  {sizeInfo.label}
-                </span>
-              )}
-            </div>
+              <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3">
+                {TOPPINGS.map((topping) => {
+                  const selected = toppings.includes(topping.name)
 
-            <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-              {PIZZA_SIZES.map((s) => {
-                const selected = size === s.id
-
-                return (
-                  <button
-                    type="button"
-                    key={s.id}
-                    onClick={() => setSize(s.id)}
-                    className={`
-                      relative
-                      overflow-hidden
-                      rounded-2xl
-                      border-2
-                      px-3
-                      py-3
-                      text-left
-                      transition-all
-                      duration-200
-                      ${
-                        selected
-                          ? 'border-tomato bg-tomato/10 text-tomato-dark shadow-sm'
-                          : 'border-char/10 bg-white/60 text-char/70 hover:border-char/25 hover:bg-white'
-                      }
-                    `}
-                  >
-                    {selected && (
-                      <span className="absolute right-2 top-2 flex h-5 w-5 items-center justify-center rounded-full bg-tomato text-white">
-                        <FiCheck size={11} strokeWidth={3} />
+                  return (
+                    <button
+                      type="button"
+                      key={topping.name}
+                      onClick={() => toggleTopping(topping.name)}
+                      className={`
+                        flex
+                        items-center
+                        gap-2.5
+                        rounded-2xl
+                        border-2
+                        px-3
+                        py-3
+                        text-left
+                        transition-all
+                        duration-200
+                        ${
+                          selected
+                            ? 'border-basil bg-basil/10 text-basil-dark'
+                            : 'border-char/10 bg-white/60 text-char/70 hover:border-char/20 hover:bg-white'
+                        }
+                      `}
+                    >
+                      <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-flour-dark text-base">
+                        {topping.icon}
                       </span>
-                    )}
 
-                    <span className="block text-sm font-bold">
-                      {s.label}
-                    </span>
+                      <span className="min-w-0 flex-1">
+                        <span className="block truncate text-xs font-semibold">
+                          {topping.name}
+                        </span>
 
-                    <span className="mt-1 block text-xs text-char/45">
-                      {s.multiplier === 1
-                        ? 'Regular price'
-                        : `${s.multiplier}× price`}
-                    </span>
-                  </button>
-                )
-              })}
-            </div>
-          </section>
+                        <span className="mt-0.5 block text-[10px] text-char/40">
+                          +{formatCurrency(toppingPrice)}
+                        </span>
+                      </span>
 
-          {/* Toppings */}
-          <section className="mb-7">
-            <div className="mb-3">
-              <p className="text-xs font-bold uppercase tracking-wider text-char/45">
-                Step 2
-              </p>
-
-              <div className="mt-1 flex items-center justify-between gap-3">
-                <h3 className="font-display text-xl font-semibold">
-                  Add extra toppings
-                </h3>
-
-                <span className="shrink-0 text-xs font-semibold text-char/45">
-                  +{formatCurrency(toppingPrice)} each
-                </span>
+                      {selected && (
+                        <FiCheck
+                          size={16}
+                          className="shrink-0 text-basil"
+                          strokeWidth={3}
+                        />
+                      )}
+                    </button>
+                  )
+                })}
               </div>
-            </div>
-
-            <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3">
-              {TOPPINGS.map((topping) => {
-                const selected = toppings.includes(topping.name)
-
-                return (
-                  <button
-                    type="button"
-                    key={topping.name}
-                    onClick={() => toggleTopping(topping.name)}
-                    className={`
-                      flex
-                      items-center
-                      gap-2.5
-                      rounded-2xl
-                      border-2
-                      px-3
-                      py-3
-                      text-left
-                      transition-all
-                      duration-200
-                      ${
-                        selected
-                          ? 'border-basil bg-basil/10 text-basil-dark'
-                          : 'border-char/10 bg-white/60 text-char/70 hover:border-char/20 hover:bg-white'
-                      }
-                    `}
-                  >
-                    <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-flour-dark text-base">
-                      {topping.icon}
-                    </span>
-
-                    <span className="min-w-0 flex-1">
-                      <span className="block truncate text-xs font-semibold">
-                        {topping.name}
-                      </span>
-
-                      <span className="mt-0.5 block text-[10px] text-char/40">
-                        +{formatCurrency(toppingPrice)}
-                      </span>
-                    </span>
-
-                    {selected && (
-                      <FiCheck
-                        size={16}
-                        className="shrink-0 text-basil"
-                        strokeWidth={3}
-                      />
-                    )}
-                  </button>
-                )
-              })}
-            </div>
-          </section>
+            </section>
+          )}
 
           {/* Quantity */}
           <section className="mb-2">
             <div className="flex items-center justify-between rounded-2xl border border-char/10 bg-white/60 px-4 py-4">
               <div>
                 <p className="text-xs font-bold uppercase tracking-wider text-char/40">
-                  Step 3
+                  {isPizza ? 'Step 3' : 'Step 2'}
                 </p>
+
                 <h3 className="mt-1 font-display text-lg font-semibold">
                   Quantity
                 </h3>
