@@ -11,7 +11,6 @@ React + Vite frontend for the pizza delivery platform.
 
 ```bash
 npm install
-cp .env.example .env   # point VITE_API_BASE_URL at your server, defaults to /api
 npm run dev
 ```
 
