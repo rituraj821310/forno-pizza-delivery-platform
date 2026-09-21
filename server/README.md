@@ -17,7 +17,7 @@ npm run seed   # optional: populates demo menu items + an admin account
 npm run dev    # nodemon, http://localhost:5000
 ```
 
-Demo admin login after seeding: `admin@forno.example` / `admin123`.
+Demo admin login after seeding: `email` / `password`.
 
 ## Structure
 
