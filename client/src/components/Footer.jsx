@@ -34,7 +34,7 @@ export default function Footer() {
         <div>
           <h4 className="font-sans text-sm font-semibold text-flour mb-4">Contact</h4>
           <ul className="space-y-2 text-sm text-flour/60">
-            <li>hello@forno.example</li>
+            <li>support@forno.com</li>
             <li>+91 (999) 019-2231</li>
             <li>184, Connaught Place, New Delhi, India</li>
           </ul>
