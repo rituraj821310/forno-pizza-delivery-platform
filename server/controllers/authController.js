@@ -67,6 +67,103 @@ const login = asyncHandler(async (req, res) => {
   })
 })
 
+const forgotPassword = asyncHandler(
+  async (req, res) => {
+    const { email } = req.body
+
+    if (!email?.trim()) {
+      throw ApiError.badRequest(
+        'Email is required'
+      )
+    }
+
+    const result =
+      await authService.requestPasswordReset(
+        email
+      )
+
+    res.json(result)
+  }
+)
+
+const verifyResetOTP = asyncHandler(
+  async (req, res) => {
+    const {
+      email,
+      otp,
+    } = req.body
+
+    if (!email?.trim()) {
+      throw ApiError.badRequest(
+        'Email is required'
+      )
+    }
+
+    if (!otp) {
+      throw ApiError.badRequest(
+        'OTP is required'
+      )
+    }
+
+    if (!/^\d{6}$/.test(otp)) {
+      throw ApiError.badRequest(
+        'OTP must be 6 digits'
+      )
+    }
+
+    const result =
+      await authService.verifyResetOTP({
+        email,
+        otp,
+      })
+
+    res.json(result)
+  }
+)
+
+const resetPassword = asyncHandler(
+  async (req, res) => {
+    const {
+      email,
+      resetToken,
+      newPassword,
+    } = req.body
+
+    if (!email?.trim()) {
+      throw ApiError.badRequest(
+        'Email is required'
+      )
+    }
+
+    if (!resetToken) {
+      throw ApiError.badRequest(
+        'Reset token is required'
+      )
+    }
+
+    if (!newPassword) {
+      throw ApiError.badRequest(
+        'New password is required'
+      )
+    }
+
+    if (newPassword.length < 6) {
+      throw ApiError.badRequest(
+        'New password must be at least 6 characters'
+      )
+    }
+
+    const result =
+      await authService.resetPassword({
+        email,
+        resetToken,
+        newPassword,
+      })
+
+    res.json(result)
+  }
+)
+
 const me = asyncHandler(async (req, res) => {
   res.json({
     user: sanitizeUser(req.user),
@@ -130,6 +227,9 @@ const changePassword = asyncHandler(
 export {
   register,
   login,
+  forgotPassword,
+  verifyResetOTP,
+  resetPassword,
   me,
   logout,
   updateProfile,
